@@ -1,12 +1,35 @@
 class MemoriaDeSeguranca
+
 types
--- TODO Define types here
+	public Candidatos = set of Candidato;	
 values
--- TODO Define values here
+-- TODO D
 instance variables
--- TODO Define instance variables here
+	private votantes :  set of Eleitor := {};
+	private votos : map Candidato to int := { |-> };
+
 operations
--- TODO Define operations here
+	
+	public MemoriaDeSeguranca : Candidatos ==> MemoriaDeSeguranca
+	MemoriaDeSeguranca(candidatos) == ( 
+		votos  :=  {cand |-> 0 | cand in set candidatos};
+	return self);
+		
+	public addVotante : Eleitor *  Candidato ==> ()
+	addVotante(eleitor, candidato) == (
+		votos(candidato) := votos(candidato) +	1;
+		votantes := votantes union {eleitor};
+	)
+	pre jaVotou(eleitor)=false;
+	
+	public jaVotou : Eleitor ==> bool
+	jaVotou(eleitor) == (
+		if(eleitor in set votantes) then
+		(return true;)
+		else 
+		(return false;)
+
+	);
 functions
 -- TODO Define functiones here
 traces
