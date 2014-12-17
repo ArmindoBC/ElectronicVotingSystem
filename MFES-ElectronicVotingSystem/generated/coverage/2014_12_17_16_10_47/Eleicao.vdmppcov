@@ -36,13 +36,12 @@ operations
 			if( eleitor in set cadernoEleitoral) then
 			(
 			eleitor_atual := eleitor;
-			registoDeAtividades.add("O Eleitor " ^ eleitor.nome ^ " pode votar!");
+			IO`println("O Eleitor " ^ eleitor.nome ^ " com numero de eleitor " ^ [eleitor.numeroDeEleitor] ^ "  pode votar!");
 			status := <Authenticated>;
 			
 		)
 			else
-			(
-			registoDeAtividades.add("O Eleitor " ^ eleitor.nome ^ " nao esta nos cadernos!");
+			(IO`println("O Eleitor " ^ eleitor.nome ^ " com numero de eleitor " ^ [eleitor.numeroDeEleitor] ^ "  nao esta nos cadernos!");
 			)
 			)
 			pre status = <Ready>;
@@ -52,12 +51,11 @@ operations
 			ValidacaoDoEleitor() == (
 							
 			if( memoriaSeguranca.verificaVotante(eleitor_atual) ) then
-			(
-			registoDeAtividades.add("O Eleitor " ^ eleitor_atual.nome ^ " ja votou!");
-			)
+			(IO`println("O Eleitor " ^ eleitor_atual.nome ^ " com numero de eleitor " ^ [eleitor_atual.numeroDeEleitor] ^ "  ja votou!");
+		
+		)
 			else
-			(
-			registoDeAtividades.add("O Eleitor " ^ eleitor_atual.nome ^ "  pode votar!");
+			(IO`println("O Eleitor " ^ eleitor_atual.nome ^ " com numero de eleitor " ^ [eleitor_atual.numeroDeEleitor] ^ "  pode votar!");
 			status := <Validated>;
 			)
 			)

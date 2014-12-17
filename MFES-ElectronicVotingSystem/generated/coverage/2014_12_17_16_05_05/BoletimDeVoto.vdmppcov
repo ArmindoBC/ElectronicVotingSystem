@@ -1,0 +1,25 @@
+class BoletimDeVoto
+types
+		
+		public String = seq of nat;
+		public Candidatos =  set of Candidato;
+
+instance variables
+		--public candidatos : Candidatos;
+		public escolha :  Candidato;
+		
+		--ter em atenção que o voto poderá ser um candidato vazio... VOTO EM BRANCO
+operations
+		
+		public BoletimDeVoto : Candidatos ==> BoletimDeVoto
+			BoletimDeVoto(cand) == (
+															return self)
+			
+	
+	
+		
+functions
+-- TODO Define functiones here
+traces
+-- TODO Define Combinatorial Test Traces here
+end BoletimDeVoto

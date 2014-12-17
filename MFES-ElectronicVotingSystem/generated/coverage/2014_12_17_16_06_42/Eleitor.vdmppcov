@@ -17,7 +17,7 @@ operations
 																freguesia := freg; 
 																numeroDeEleitor:= nr;
 																return self)
-	post idade >= 18; 
+	pre idade >=18; 
 	
 functions
 -- TODO Define functiones here
