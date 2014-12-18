@@ -17,7 +17,8 @@ instance variables
 		nrRandom : int := 1;
 operations
 		
-	-- Test Case em que tudo passa sem problemas
+	/* ========= TEST CASES VÁLIDOS ============ */	
+	-- Test Case - em que tudo passa sem problemas
 	public simplesEleicao: () ==> ()
 	simplesEleicao() == (
 		
@@ -28,13 +29,113 @@ operations
 		
 		eleicao :=  new Eleicao(candidatos, cadernoEleitoral, memoriaSeguranca);
 		
+		-- votacao de todos os eleitores -> Seleção de candidato aleatória
 		for eleitor in lcadernoEleitoral do
 		(
+			-- Autenticar
 			eleicao.Autenticacao(eleitor);
 			assertEqual(eleicao.eleitor_atual, eleitor);
 			assertEqual(eleicao.status, <Authenticated>);
+			-- Validar
 			eleicao.ValidacaoDoEleitor();
 			assertEqual(eleicao.status, <Validated>);
+			-- Votação em Branco ou Candidato com Mudança de voto
+			(
+				dcl candidatoRNG : [Candidato] := candidatoAleatorio();
+				eleicao.Selecao(candidatoRNG);
+				assertEqual(eleicao.candidato_atual, candidatoRNG);
+				assertEqual(eleicao.status, <Selected>);
+				candidatoRNG := candidatoAleatorio();
+				eleicao.Selecao(candidatoRNG);
+				assertEqual(eleicao.candidato_atual, candidatoRNG);
+				assertEqual(eleicao.status, <Selected>);
+			);
+			-- Confimar Voto
+			eleicao.confirmarVotacao();
+			assertEqual(eleicao.status, <Confirmed>);
+			-- Completar processo e fazer 'reset'
+			eleicao.completarVotacao();
+			assertEqual(eleicao.eleitor_atual, nil);
+			assertEqual(eleicao.candidato_atual, nil);
+			assertEqual(eleicao.status, <Ready>);
+		);
+		
+		-- contagem dos votos 
+		(
+			dcl nrVotosTotalExpectavel : int := len lcadernoEleitoral;
+			dcl votosCandidatos : map Candidato to int := memoriaSeguranca.getVotos();
+			dcl nrVotosTotalCalculado : int := 0;
+			for candidato in lcandidatos do
+			(
+				nrVotosTotalCalculado := nrVotosTotalCalculado + votosCandidatos(candidato);
+			);
+			
+			nrVotosTotalCalculado := nrVotosTotalCalculado + memoriaSeguranca.getVotosBrancos();
+			
+			assertEqual(nrVotosTotalCalculado, nrVotosTotalExpectavel);
+		);
+		eleicao.registoDeAtividades.imprimeRegisto();
+			
+	);
+	
+	/* =============== TEST CASES INVÁLIDOS ================ */
+	-- Test Case - Registar utilizador menor de idade
+	public registarUtilizadorInvalido: () ==> ()
+		registarUtilizadorInvalido() == (
+			dcl eleitor: Eleitor;
+			eleitor := new Eleitor("Armindo", 16,"St M Maior",12122);
+		);
+	
+	-- Test Case - Votar com um utilizador não registado
+	public votarNaoRegistado: () ==> ()
+		votarNaoRegistado() == (
+			dcl eleitor: Eleitor := new Eleitor("José", 21,"Évora",12232);
+			cadernoEleitoral := cadernoEleitoral  union {new Eleitor("Armindo", 20,"St M Maior",12122)};
+			candidatos := candidatos  union {new Candidato("Paulo Portas", <CDS>)};
+			
+			memoriaSeguranca := new MemoriaDeSeguranca(candidatos);
+			eleicao :=  new Eleicao(candidatos, cadernoEleitoral, memoriaSeguranca);
+			
+			-- falha a autenticação -> falha pos condição estado = Autenticado
+			eleicao.Autenticacao(eleitor);
+			
+			-- falha a votação -> falha a pre condição estado = Validado
+			--eleicao.Selecao(nil); 
+		);
+		
+	-- Test Case - Confirmar voto sem selecionar candidato	
+	public confirmarSemSelecionar: () ==> ()
+		confirmarSemSelecionar() == (
+			memoriaSeguranca := new MemoriaDeSeguranca(candidatos);
+			eleicao :=  new Eleicao(candidatos, cadernoEleitoral, memoriaSeguranca);
+			
+			-- falha pre condicao status = <Selected>
+			eleicao.confirmarVotacao();
+		);
+		
+	-- Test Case - Completar sem confirmar voto
+	public completarSemConfirmar: () ==> ()
+			completarSemConfirmar() == (
+				memoriaSeguranca := new MemoriaDeSeguranca(candidatos);
+				eleicao :=  new Eleicao(candidatos, cadernoEleitoral, memoriaSeguranca);
+			
+				-- falha pre condicao status = <Confirmed>
+				eleicao.completarVotacao();
+			);
+			
+	-- Test Case - Votar mais do que uma vez
+	public votarMaisQueUmaVez: () ==> ()
+		votarMaisQueUmaVez() == (
+		
+			registarCandidatos();
+			registarEleitores();
+		
+			memoriaSeguranca := new MemoriaDeSeguranca(candidatos);
+			eleicao :=  new Eleicao(candidatos, cadernoEleitoral, memoriaSeguranca);
+			
+			-- Processo normal até concluir um voto
+			eleicao.Autenticacao(lcadernoEleitoral(2)); -- Escolheu-se o eleitor 2, mas pode ser qualquer eleitor do cadernoEleitoral
+			eleicao.ValidacaoDoEleitor();
 			(
 				dcl candidatoRNG : [Candidato] := candidatoAleatorio();
 				eleicao.Selecao(candidatoRNG);
@@ -42,17 +143,16 @@ operations
 				assertEqual(eleicao.status, <Selected>);
 			);
 			eleicao.confirmarVotacao();
-			assertEqual(eleicao.status, <Confirmed>);
 			eleicao.completarVotacao();
-			assertEqual(eleicao.eleitor_atual, nil);
-			assertEqual(eleicao.candidato_atual, nil);
-			assertEqual(eleicao.status, <Ready>);
+			
+			-- Tentativa de 2a votacao -> falha na validação
+			eleicao.Autenticacao(lcadernoEleitoral(2));
+			eleicao.ValidacaoDoEleitor();
+			assertEqual(eleicao.status, <Validated>);
+			
 		);
 		
-		eleicao.registoDeAtividades.imprimeRegisto();
-			
-	);
-	
+	/* ----------------------------- == Métodos de preenchimento == ---------------------------------------------------- */
 	public registarCandidatos: () ==> ()
 		registarCandidatos() == (
 			lcandidatos  := lcandidatos ^ [new Candidato("Paulo Portas", <CDS>)];
@@ -98,6 +198,26 @@ operations
 	
 	public static main : () ==> ()
 		main() == (
-			new EleicaoTest().simplesEleicao();
+			-- VALIDO => Podem ser executados em sequência
+			(
+				new EleicaoTest().simplesEleicao();
+			);
+			-- INVALIDO => Executar um de cada vez
+			/*(
+				new EleicaoTest().registarUtilizadorInvalido();
+			);*/
+			/*(
+				new EleicaoTest().votarNaoRegistado();
+			);*/
+			/*(
+				new EleicaoTest().confirmarSemSelecionar();
+			);*/
+			/*(
+				new EleicaoTest().completarSemConfirmar();
+			);*/
+			/*(
+				new EleicaoTest().votarMaisQueUmaVez();
+			);*/
+				
 		);
 end EleicaoTest

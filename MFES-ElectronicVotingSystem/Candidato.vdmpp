@@ -15,8 +15,4 @@ operations
 				Candidato(n, part) == (nome:=n ; 
 															 partido :=part; 
 															 return self);
-functions
--- TODO Define functiones here
-traces
--- TODO Define Combinatorial Test Traces here
 end Candidato

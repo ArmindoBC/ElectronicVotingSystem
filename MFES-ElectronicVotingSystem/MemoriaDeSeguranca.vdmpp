@@ -38,6 +38,16 @@ operations
 		return eleitor in set votantes;
 	);
 	
+	public getVotos : () ==> map Candidato to int
+		getVotos() == (
+			return votos;
+		);
+		
+	public getVotosBrancos : () ==> int
+		getVotosBrancos() == (
+			return votosBrancos;
+		);
+	
 	 
 functions
 

@@ -18,9 +18,4 @@ operations
 																numeroDeEleitor:= nr;
 																return self)
 	post idade >= 18; 
-	
-functions
--- TODO Define functiones here
-traces
--- TODO Define Combinatorial Test Traces here
 end Eleitor

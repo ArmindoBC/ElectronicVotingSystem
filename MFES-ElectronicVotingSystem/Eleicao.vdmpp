@@ -43,7 +43,8 @@ operations
 					registoDeAtividades.add("O Eleitor " ^ eleitor.nome ^ " nao esta nos cadernos!");
 				)
 			)
-			pre status = <Ready>;
+			pre status = <Ready>
+			post status = <Authenticated>;
 			
 			
 			public ValidacaoDoEleitor : () ==> ()
@@ -69,7 +70,8 @@ operations
 					(
 						if(candidato <>  nil) then
 						(
-							registoDeAtividades.add("Removida Selecao do Candidato " ^ candidato_atual.nome);
+							if(candidato_atual <> nil) 
+								then registoDeAtividades.add("Removida Selecao do Candidato " ^ candidato_atual.nome);
 							candidato_atual := candidato;
 							registoDeAtividades.add("Selecao do Candidato " ^ candidato.nome);
 						)
