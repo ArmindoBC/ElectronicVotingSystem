@@ -1,0 +1,46 @@
+class MemoriaDeSeguranca
+
+types
+	public Candidatos = set of Candidato;	
+values
+-- TODO D
+instance variables
+	private votantes :  set of Eleitor := {};
+	private votos : map Candidato to int := { |-> };
+	private votosBrancos : int :=0;
+	
+operations
+	
+	public MemoriaDeSeguranca : Candidatos ==> MemoriaDeSeguranca
+	MemoriaDeSeguranca(candidatos) == ( 
+		votos  :=  {cand |-> 0 | cand in set candidatos};
+	return self);
+		
+		jaVotou : Eleitor ==> bool
+	jaVotou(eleitor) == (
+		return eleitor in set votantes;
+	);
+		
+	public addVotante : Eleitor *  [Candidato] ==> ()
+	addVotante(eleitor, candidato) == (
+		if(candidato <> nil)
+		then(votos(candidato) := votos(candidato) +	1;)
+		else
+		(votosBrancos  := votosBrancos +1;);
+		
+		votantes := votantes union {eleitor};
+
+	)
+	pre eleitor not in set votantes;
+	
+	public verificaVotante : Eleitor ==> bool
+	verificaVotante(eleitor) == (
+		return eleitor in set votantes;
+	);
+	
+	 
+functions
+
+traces
+-- TODO Define Combinatorial Test Traces here
+end MemoriaDeSeguranca

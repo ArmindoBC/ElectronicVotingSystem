@@ -1,0 +1,28 @@
+class RegistoDeAtividadeTest
+types
+-- TODO Define types here
+values
+-- TODO Define values here
+instance variables
+		s: RegistoDeAtividades :=  new RegistoDeAtividades();
+		
+operations
+		private testPrint: () ==> ()
+		testPrint() == (
+		--Nao esquecer de modificar os testes
+		s.add("sasas");
+		s.add("dsddsdfddfdf");
+		s.add("dsddsdfddfdfaaaa");
+		s.add("dsddsdfddfdfdsddsdfddfdf");
+		s.add("dsddsdfddfdf111111111111");
+		s.imprimeRegisto();
+		);
+		
+		public static main : () ==> ()
+		main() == (new RegistoDeAtividadeTest().testPrint(););
+		
+functions
+-- TODO Define functiones here
+traces
+-- TODO Define Combinatorial Test Traces here
+end RegistoDeAtividadeTest

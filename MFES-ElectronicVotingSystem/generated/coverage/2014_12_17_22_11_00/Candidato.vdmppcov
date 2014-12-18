@@ -1,0 +1,22 @@
+class Candidato
+types
+		public String =  seq of char;
+		public Partido = <PSD> | <PS> | <CDS> | <BE> |<PCP> | <PEV> | <Indepente>;
+
+instance variables
+		
+		 public nome : String ;
+ 		 public partido : Partido;
+     public localidade : String; 
+
+operations
+		
+			public Candidato : String * Partido ==> Candidato
+				Candidato(n, part) == (nome:=n ; 
+															 partido :=part; 
+															 return self);
+functions
+-- TODO Define functiones here
+traces
+-- TODO Define Combinatorial Test Traces here
+end Candidato

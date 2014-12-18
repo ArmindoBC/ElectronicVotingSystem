@@ -1,0 +1,145 @@
+class Eleicao
+
+--MAIN CLASS
+types
+	public Candidatos = set of Candidato;
+	public CadernoEleitoral =  set of Eleitor;
+	public Status = <Ready> | <Authenticated>| <Validated> | <Selected> | <Confirmed>  ;
+	
+values
+-- TODO Define values here
+instance variables
+	public candidatos : Candidatos;
+	public cadernoEleitoral : CadernoEleitoral;
+	public memoriaSeguranca : MemoriaDeSeguranca;
+	public registoDeAtividades: RegistoDeAtividades :=  new RegistoDeAtividades();
+	
+	public status : Status := <Ready>;	
+	public eleitor_atual : [Eleitor] := nil;
+	public candidato_atual : [Candidato] := nil;
+	
+	inv status = <Authenticated> => eleitor_atual <> nil;
+	
+operations
+			
+			public Eleicao : Candidatos*CadernoEleitoral*MemoriaDeSeguranca ==> Eleicao
+			Eleicao(cand, cadEleitoral, memSeg) == (
+				candidatos := cand;
+				cadernoEleitoral := cadEleitoral;
+				memoriaSeguranca := memSeg;
+			return self;
+			) ;
+
+			public Autenticacao : Eleitor ==> ()
+			Autenticacao(eleitor) == (
+			
+			if( eleitor in set cadernoEleitoral) then
+			(
+			eleitor_atual := eleitor;
+			registoDeAtividades.add("O Eleitor " ^ eleitor.nome ^ " pode votar!");
+			status := <Authenticated>;
+			
+		)
+			else
+			(
+			registoDeAtividades.add("O Eleitor " ^ eleitor.nome ^ " nao esta nos cadernos!");
+			)
+			)
+			pre status = <Ready>;
+			
+			
+			public ValidacaoDoEleitor : () ==> ()
+			ValidacaoDoEleitor() == (
+							
+			if( memoriaSeguranca.verificaVotante(eleitor_atual) ) then
+			(
+			registoDeAtividades.add("O Eleitor " ^ eleitor_atual.nome ^ " ja votou!");
+			)
+			else
+			(
+			registoDeAtividades.add("O Eleitor " ^ eleitor_atual.nome ^ "  pode votar!");
+			status := <Validated>;
+			)
+			)
+			pre status = <Authenticated>;
+			
+--Fazer, se possivel, refactor desta funcao
+	public Selecao : [Candidato] ==> ()
+			Selecao(candidato) == (
+				if(candidato<>candidato_atual)
+					then 
+					(
+						if(candidato <>  nil )
+							then
+							(
+									if(status=<Selected>)
+										then
+										(
+											registoDeAtividades.add("Removida Selecao do Candidato " ^ candidato_atual.nome);
+										)
+										else
+										(
+											candidato_atual := candidato;
+											registoDeAtividades.add("Selecao do Candidato " ^ candidato.nome);
+										);
+							)
+							else
+							(
+									if(status=<Selected>)
+									then
+									(
+										registoDeAtividades.add("Removida Selecao no " ^ candidato_atual.nome);
+									)
+									else
+									(
+										candidato_atual := candidato;
+										registoDeAtividades.add("Selecao em branco");
+									);
+							);
+					);
+					status := <Selected>;
+				)
+			pre (status = <Validated> and 
+					(candidato <> nil => candidato in set candidatos)) or
+					(status = <Selected> and 
+					(candidato <> nil => candidato in set candidatos));
+
+			
+			public confirmarVotacao : () ==> ()
+			confirmarVotacao() == (
+				
+				if(candidato_atual <>  nil ) 
+				then
+				(
+				
+					memoriaSeguranca.addVotante(eleitor_atual, candidato_atual);
+				)
+				else
+				(
+				
+				memoriaSeguranca.addVotante(eleitor_atual, nil);
+				
+				
+				);
+				
+				status := <Confirmed>;
+	
+			)
+			pre status = <Selected>;
+			
+			public completarVotacao : () ==> ()
+		completarVotacao() == (
+					candidato_atual := nil;
+					eleitor_atual := nil;
+					status := <Ready>;
+			)
+			pre status = <Confirmed>;
+			
+			
+			
+		
+functions
+		
+traces
+-- TODO Define Combinatorial Test Traces here
+end Eleicao
